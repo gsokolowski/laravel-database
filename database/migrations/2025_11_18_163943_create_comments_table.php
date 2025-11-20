@@ -15,10 +15,13 @@ return new class extends Migration
             // $table->engine = 'InnoDB'; // use InnoDB engine is default
             $table->id();
             $table->text('comment')->nullable(false);
+            $table->fullText('comment'); // fulltext searching activated
             $table->unsignedBigInteger('user_id');
+            $table->tinyInteger('rating');
             // foreign key user_id references id column in users table
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
+            
         });
     }
 

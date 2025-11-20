@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('size');
             $table->integer('price');
             $table->text('description');
+            $table->fullText('description');
             $table->timestamps();
         });
     }

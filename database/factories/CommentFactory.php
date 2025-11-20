@@ -15,6 +15,7 @@ class CommentFactory extends Factory
         return [
             'comment' => fake()->sentence(),
             'user_id' => fake()->numberBetween(1, 5),
+            'rating' => fake()->numberBetween(1, 5),
         ];
     }
 }
