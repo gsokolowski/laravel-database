@@ -18,8 +18,12 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id'); // foreigh key user table
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
-            $table->unsignedBigInteger('room_id'); // foreigh key to room table
+            $table->unsignedBigInteger('room_id'); // foreigh key to room table //one room can have many reservations
             $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
+
+            $table->unsignedBigInteger('city_id'); // foreigh key to city table one city can have many reservations
+            $table->foreign('city_id')->references('id')->on('cities')->onDelete('cascade');
+
             $table->timestamps();
         });
     }

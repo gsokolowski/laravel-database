@@ -4,6 +4,6 @@
     <meta charset="UTF-8">
 </head>
 <body>
-    <div id="app">sasa</div>
+    <div id="app">App blade</div>
 </body>
 </html>

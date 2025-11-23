@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Comment;
+use App\Models\Reservation;
+use App\Models\Room;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -8,50 +10,36 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
 
-    // select * from `users` order by `name` desc
-    $result = DB::table('users')
-                ->orderBy('name', 'desc')
-                ->get();
 
-    // select `name` as `somethig`, `email` from `users` order by `created_at` desc limit 1
-    $result = DB::table('users')
-                ->select('name as somethig','email')
-                ->latest() // created_at default
-                ->first();
-                
-    // select * from `users` order by RAND(), RAND()
-    $result = DB::table('users')
-                ->inRandomOrder()
-                ->orderByRaw('RAND()')
-                ->get();
+    // $result = Comment::all()->toArray();
+    // $result = Comment::all()->count();
+    // $result = Comment::all()->toJson()
+    // $result = Comment::all()->toQuery();
 
+    
+    $comments = Comment::all();
+    // $comments = Comment::rating(3)->get();
 
-    // select count(id) as number_of_5stars_comments, rating from comments group by `rating` having rating = 5;
-    $result = DB::table('comments')
-                ->selectRaw('count(id) as number_of_5stars_comments, rating')
-                ->groupBy('rating')
-                ->having('rating', '=', 5)
-                ->get();
+    // reject on collection
+    $result = $comments->reject(function ($comment) {
+        return $comment->rating < 3; // reject comments with rating less then 3
+    });
 
-    // select * from `comments` limit 3 offset 5
-    $result = DB::table('comments')
-                ->skip(5)
-                ->take(3)
-                ->get();
+    // gives you difrence between results above and all results so gives you results of rating > 3
+    $result = $comments->diff($result);
 
-    // select * from `comments` limit 3 offset 5            
-    $result = DB::table('comments')
-                ->offset(5)
-                ->limit(3)
-                ->get();
-
-    return response()->json([
-        'status' => 200,
-        'message' => 'Search completed successfully.',
-        'data'   => $result,
-    ]);
-
-
+    // map on collection and do what you want on it 
+    $result = $comments->map(function ($comment) {
+        return $comment->comment;
+    });
+    
     dump($result);
+
+    // return response()->json([
+    //     'status' => 200,
+    //     'message' => 'Search completed successfully.',
+    //     'data'   => $result,
+    // ]);
+
     return view('app');
 });
