@@ -21,6 +21,7 @@ return new class extends Migration
             // foreign key user_id references id column in users table
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
+            $table->softDeletes();
             
         });
     }

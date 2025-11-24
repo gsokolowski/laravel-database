@@ -11,29 +11,17 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
 
 
-    // $result = Comment::all()->toArray();
-    // $result = Comment::all()->count();
-    // $result = Comment::all()->toJson()
-    // $result = Comment::all()->toQuery();
+    $result = User::select([
+        'users.*',
+        'last_commented_at' => Comment::selectRaw('MAX(created_at)')
+            ->whereColumn('user_id', 'users.id')
+    ])->withCasts([
+        'last_commented_at' => 'datetime:Y-m-d' // date and datetime works only for array or json result
+    ])->get()->toJson();
 
-    
-    $comments = Comment::all();
-    // $comments = Comment::rating(3)->get();
-
-    // reject on collection
-    $result = $comments->reject(function ($comment) {
-        return $comment->rating < 3; // reject comments with rating less then 3
-    });
-
-    // gives you difrence between results above and all results so gives you results of rating > 3
-    $result = $comments->diff($result);
-
-    // map on collection and do what you want on it 
-    $result = $comments->map(function ($comment) {
-        return $comment->comment;
-    });
-    
     dump($result);
+
+    // dump($result);
 
     // return response()->json([
     //     'status' => 200,
