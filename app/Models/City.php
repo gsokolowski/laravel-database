@@ -9,4 +9,10 @@ class City extends Model
 {
     /** @use HasFactory<\Database\Factories\CityFactory> */
     use HasFactory;
+
+    public function rooms()
+    {
+        return $this->belongsToMany(Room::class);
+    }
+
 }
