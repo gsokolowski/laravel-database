@@ -3,6 +3,8 @@
 use App\Models\Address;
 use App\Models\City;
 use App\Models\Comment;
+use App\Models\Company;
+use App\Models\Image;
 use App\Models\Reservation;
 use App\Models\Room;
 use App\Models\User;
@@ -12,76 +14,30 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
 
-
-    // one to one
-    // user has address 
-    $user = User::find(1); // user_id = 1
-    $address = $user->address;
-
-    // dump($address);
+    $user = User::find(1);
+    // select * from `images` where `images`.`imageable_type` = 'App\\Models\\User' and `images`.`imageable_id` = 1 and `images`.`imageable_id` is not null limit 1
+    $image = $user->image; // morphOne = one related model returns as an object (single model), NOT a collection only morphMany = many related models (collection)
     
-    // get user street and number
-    $street = $user->address->street;
-    $number = $user->address->number;
+    //Returns the relation builder, NOT the image and does not send sql to DB - never use that 
+    // $image = $user->image(); 
+
+    $filename = $user->image?->filename;
+    $path     = $user->image?->path;
+    $alt      = $user->image?->alt;
+    $url = $user->image?->url();
     
-    // dump($street, $number);
+    // dump($image);
+
+    $city = City::find(2);
+    $image = $city->image;
     
-    // address belongs to user
-    $address = Address::find(2); // // address id = 1  
-    // dump($address->user);
+    // dump($image);
 
+    $image = Image::find(11);
+    $whosImageIsIt = $image->imageable;
 
-    // one to many
-    // user has many comments
-    $user =  User::find(1); // address_id = 1
-    $comments = $user->comments;
-    
-    // dump($comments);
+    dump($whosImageIsIt);
 
-    // comment belongs to user
-    // select * from `comments` where `comments`.`id` = 2 and `comments`.`deleted_at` is null limit 1
-    $comment = Comment::find(3); // comment id = 2
-    $user =  $comment->user;
-
-    // dump($user);
-
-    // many to many
-    $city = City::find(1); // city id 1
-    $rooms = $city->rooms; // rooms under the city
-    // dump($rooms);
-
-
-    $rooms = Room::where('size', 2)->get(); // i have rooms 
-    dump($rooms);
-
-    dump($rooms[0]->cities); // for room id 0 get me city
-
-    // display city related to the room 
-    foreach($rooms as $room) { 
-        $city = $room->cities;
-        dump($city);
-    }
-    
-    // list just city names
-    foreach ($rooms as $room) {
-        foreach ($room->cities as $city) {
-            echo $city->name.' ';
-            echo 'room: ' ;
-            echo $city->pivot->room_id.' '; 
-        }
-    }
-
-    // too access pivot city_rooms table
-    foreach ($rooms as $room) {
-        foreach ($room->cities as $city) {
-            echo $city->pivot->room_id.' '; 
-        }
-    }
-
-
-
-
-    // dump($result);
 
     // return response()->json([
     //     'status' => 200,

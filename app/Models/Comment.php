@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Comment extends Model
@@ -83,4 +85,19 @@ class Comment extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * From Comment Get the userAddress through User
+     */
+    // public function userAddress(): HasOneThrough
+    // {
+    //     return $this->hasOneThrough(
+    //         Address::class, // final model
+    //         User::class     // through model
+    //     );
+    // }
+
+    public function userAddress(): HasOne
+    {
+        return $this->hasOne(Address::class, 'user_id', 'user_id'); // Comments.user_id and Address.user_id
+    }
 }

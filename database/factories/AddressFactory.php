@@ -19,7 +19,8 @@ class AddressFactory extends Factory
     {
         return [
             'number' => fake()->numberBetween(1,10),
-            'street' => fake()->streetName,
+            'street' => fake()->streetName(),
+            'country' => fake()->country(),
             'user_id' => User::inRandomOrder()->value('id'),
         ];
     }
