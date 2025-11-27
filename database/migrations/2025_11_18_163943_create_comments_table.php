@@ -20,6 +20,8 @@ return new class extends Migration
             $table->tinyInteger('rating')->nullable();
             // foreign key user_id references id column in users table
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('commentable_type');
+            $table->unsignedBigInteger('commentable_id');
             $table->timestamps();
             $table->softDeletes();
             

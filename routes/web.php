@@ -14,30 +14,21 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
 
-    $user = User::find(1);
-    // select * from `images` where `images`.`imageable_type` = 'App\\Models\\User' and `images`.`imageable_id` = 1 and `images`.`imageable_id` is not null limit 1
-    $image = $user->image; // morphOne = one related model returns as an object (single model), NOT a collection only morphMany = many related models (collection)
-    
-    //Returns the relation builder, NOT the image and does not send sql to DB - never use that 
-    // $image = $user->image(); 
+    $room = Room::find(1);
+    // select * from `comments` where `comments`.`commentable_type` = 'App\\Models\\Room' and `comments`.`commentable_id` = 1 and `comments`.`commentable_id` is not null and `comments`.`deleted_at` is null
+    $comments = $room->comments;
 
-    $filename = $user->image?->filename;
-    $path     = $user->image?->path;
-    $alt      = $user->image?->alt;
-    $url = $user->image?->url();
-    
-    // dump($image);
+    dump($comments);
 
-    $city = City::find(2);
-    $image = $city->image;
-    
-    // dump($image);
+    $image = Image::find(5);
+    // select * from `comments` where `comments`.`commentable_type` = 'App\\Models\\Image' and `comments`.`commentable_id` = 5 and `comments`.`commentable_id` is not null and `comments`.`deleted_at` is null
+    $comments = $image->comments;
+    dump($comments);
 
-    $image = Image::find(11);
-    $whosImageIsIt = $image->imageable;
-
-    dump($whosImageIsIt);
-
+    $com = Comment::findOrFail(1);
+    $whosCommentIsIt = $com->commentable; // shows what model is that commanet related to (Room or Image)
+    dump($whosCommentIsIt);
+ 
 
     // return response()->json([
     //     'status' => 200,

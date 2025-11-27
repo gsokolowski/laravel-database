@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Image extends Model
@@ -34,5 +35,11 @@ class Image extends Model
     {
         // adjust disk if you use s3 or other
         return \Illuminate\Support\Facades\Storage::disk('public')->url($this->path);
+    }
+
+    // Image morp to hMany (has many) Comments
+    public function comments(): MorphMany
+    {
+        return $this->morphMany('App\Models\Comment', 'commentable');
     }
 }

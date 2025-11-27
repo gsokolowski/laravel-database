@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Room extends Model
 {
@@ -16,6 +17,12 @@ class Room extends Model
     public function cities()
     {
         return $this->belongsToMany(City::class);
+    }
+
+    // Room morph to Many (has many) Comments
+    public function comments(): MorphMany
+    {
+        return $this->morphMany('App\Models\Comment', 'commentable');
     }
 
 }
