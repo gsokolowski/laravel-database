@@ -34,12 +34,19 @@ class Image extends Model
     public function url(): string
     {
         // adjust disk if you use s3 or other
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->path);
+        // return \Illuminate\Support\Facades\Storage::disk('public')->url($this->path);
+        return asset('storage/' . $this->path);
     }
 
     // Image morp to hMany (has many) Comments
     public function comments(): MorphMany
     {
         return $this->morphMany('App\Models\Comment', 'commentable');
+    }
+
+    public function likers()
+    {
+        return $this->morphToMany(User::class, 'likeable', 'likeables', 'likeable_id', 'user_id')
+                    ->withTimestamps();
     }
 }

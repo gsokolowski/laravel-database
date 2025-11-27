@@ -72,4 +72,19 @@ class User extends Authenticatable
     {
         return $this->morphOne(Image::class, 'imageable');
     }
+
+    // rooms the user has liked
+    public function likedRooms()
+    {
+        // user -> many rooms via likeables pivot
+        return $this->morphedByMany(Room::class, 'likeable', 'likeables', 'user_id', 'likeable_id')
+                    ->withTimestamps();
+    }
+
+    // images the user has liked
+    public function likedImages()
+    {
+        return $this->morphedByMany(Image::class, 'likeable', 'likeables', 'user_id', 'likeable_id')
+                    ->withTimestamps();
+    }
 }

@@ -25,4 +25,11 @@ class Room extends Model
         return $this->morphMany('App\Models\Comment', 'commentable');
     }
 
+    // users who liked this room
+    public function likers()
+    {
+        return $this->morphToMany(User::class, 'likeable', 'likeables', 'likeable_id', 'user_id')
+                    ->withTimestamps();
+    }
+
 }

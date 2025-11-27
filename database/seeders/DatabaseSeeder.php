@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             AddressSeeder::class,
             CityRoomSeeder::class,
             ImageSeeder::class, // call it last
+            LikeableSeeder::class,
         ]
         );
     }
