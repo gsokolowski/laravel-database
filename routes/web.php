@@ -14,65 +14,93 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
 
-    $user = User::find(4);
-    dump($user->likedRooms, $user->likedImages);
 
-    die();
+    // select * from `users` where `users`.`id` = 1 limit 1
+    // select * from `comments` where 
+    // (`comments`.`user_id` = 1 and `comments`.`user_id` is not null and `rating` > 3 or `rating` < 2) 
+    // and `comments`.`deleted_at` is null    
+    $result = User::find(1) // find user with id 1
+                ->comments() // and return comments available in User model
+                ->where('rating', '>', 3) // and query comments, where comment rating > 3
+                ->orWhere('rating', '<', 2) // or < 2
+                ->get(); // and get it at the end
 
-    // Get users who liked a room
-    $room = Room::with('likers')->find(1);
-    $likers = $room->likers; // Collection of User models
+    // select * from `users` where `users`.`id` = 1 limit 1
+    // select * from `comments` where `comments`.`user_id` = 1 and `comments`.`user_id` is not null and 
+    // (`rating` > 3 or `rating` < 2) 
+    // and `comments`.`deleted_at` is null                
+    $result = User::find(1)->comments()
+                ->where(function($query){ // this adds a pair of parentises / branckets into query
+                    return $query->where('rating', '>', 3)
+                            ->orWhere('rating', '<', 2);
+                })
+                ->get();
 
-    dump($likers);
-
-    // Get rooms a user has liked
-    $user = User::with('likedRooms')->find(1);
-    $likedRooms = $user->likedRooms; // Collection of Room models
-
-
-    // count users who liked a model
-    $likesCount = $room->likers()->count();
-    dump($likesCount);
-
-    // count how many rooms a user liked
-    $roomsLikedCount = $user->likedRooms()->count();
-    dump($roomsLikedCount);
-
-    //Check whether a user liked a specific item
-    // from the model side:
-    $isLiked = $room->likers()->where('users.id', $user->id)->exists();
-    dump($isLiked);
+    // select * from `users` where 
+    // (select count(*) from `comments` 
+    // where `users`.`id` = `comments`.`user_id` and `comments`.`deleted_at` is null) >= 6
+    // give me user with at least 4 comments
+    $result = User::has('comments', '>=', 4)->get();
     
-    // from the user side:
-    $isLiked2 = $user->likedRooms()->where('rooms.id', $room->id)->exists();
-    dump($isLiked2);
+    // select * from `comments` where exists 
+    // (select * from `users` where `comments`.`user_id` = `users`.`id` 
+    // and exists (select * from `addresses` where `users`.`id` = `addresses`.`user_id`)) 
+    // and `comments`.`deleted_at` is null;
+    // give me comments where user of that comment has address
+    $result = Comment::has('user.address')->get();
 
-    // user likes a room
-    // $user->likedRooms()->attach($room->id); // creates pivot entry
+    // select * from `users` where exists 
+    // (select * from `comments` where `users`.`id` = `comments`.`user_id` and `rating` > 2 and `comments`.`deleted_at` is null)
+    // give me user where it has comments with rating bigger then 2
+    $result = User::whereHas('comments', function ($query) {
+        $query->where('rating', '>', 2);
+    })
+    ->get();
 
-    // user unlikes a room
-    // $user->likedRooms()->detach($room->id);
 
-    // toggle (attach if missing, detach if present)
-    // $user->likedRooms()->toggle($room->id);
+    // select * from `users` where (select count(*) from `comments` where `users`.`id` = `comments`.`user_id` and `rating` > 1 and `comments`.`deleted_at` is null) >= 2
+    // give me user where it has at least 2 comments with rating bigger then 1
+    $result = User::whereHas('comments', function ($query) {
+        $query->where('rating', '>', 1);
+    }, '>=', 2)
+    ->get();
+
     
-    // Eager loading to avoid N+1
-    // When listing rooms with their like counts and whether current user liked them:
+    // select * from `users` where not exists 
+    // (select * from `comments` where `users`.`id` = `comments`.`user_id` and `comments`.`deleted_at` is null)
+    // Give me user with without comments
+    $result = User::doesntHave('comments')->get(); // ->orDoesntHave
 
-    $user = User::with('likedRooms')->find(1);
-    
-    $rooms = Room::withCount('likers')->get();
+    // give me user who didnt write a comment with rating less then 2
+    $result = User::whereDoesntHave('comments', function ($query) {
+        $query->where('rating', '<', 2); // you can add where here
+    })->get(); // ->orWhereDoesntHave
 
-    $currentUserLikedRoomIds = [];
-    
-    if ($user) {
-        $currentUserLikedRoomIds = $user->likedRooms()->pluck('rooms.id')->toArray();
-    }
-    
-    foreach ($rooms as $room) {
-        $room->is_liked_by_current_user = in_array($room->id, $currentUserLikedRoomIds);
-    }
+    // give me all reservations which dont have comments that are rated less then 2 stars
+    $result = Reservation::whereDoesntHave('user.comments', function ($query) {
+        $query->where('rating', '<', 2);
+    })->get(); 
 
+    // select `users`.*, 
+    // (select count(*) from `comments` 
+    // where `users`.`id` = `comments`.`user_id` and `comments`.`deleted_at` is null) as `comments_count` from `users`;
+    // give me users with comments count
+    $result = User::withCount('comments')->get();
+
+
+    // select `users`.*, (select count(*) from `comments` where `users`.`id` = `comments`.`user_id` and `comments`.`deleted_at` is null) as `comments_count`, (select count(*) from `comments` where `users`.`id` = `comments`.`user_id` and `rating` <= 2 and `comments`.`deleted_at` is null) as `negative_comments_count` from `users`
+    // give me all Users with  comments count with negative rating (rating less  than 3)
+    $result = User::withCount([
+        'comments',
+        'comments as negative_comments_count' => function ($query) {
+            $query->where('rating', '<', 3);
+        },
+    ])->get();
+          
+    // dump($result[0]->comments_count,$result[0]->negative_comments_count);
+
+
+    dump($result);
     
     // return response()->json([
     //     'status' => 200,
