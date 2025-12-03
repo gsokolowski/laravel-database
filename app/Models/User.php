@@ -25,6 +25,10 @@ class User extends Authenticatable
         'password',
     ];
 
+    // eger loading on the User model. address() relation will be added automatically when User::get();
+    // select * from `addresses` where `addresses`.`user_id` in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    // protected $with = ["address"];
+
     /**
      * The attributes that should be hidden for serialization.
      *

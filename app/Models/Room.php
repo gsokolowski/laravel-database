@@ -16,7 +16,7 @@ class Room extends Model
 
     public function cities()
     {
-        return $this->belongsToMany(City::class);
+        return $this->belongsToMany(City::class)->using(CityRoom::class);
     }
 
     // Room morph to Many (has many) Comments
